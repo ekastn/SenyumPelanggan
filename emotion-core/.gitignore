@@ -1,0 +1,7 @@
+# Abaikan semua snapshot hasil deteksi
+snapshot_*.jpg
+
+# Jika ada folder khusus simpan foto
+snapshots/
+*.png
+*.jpeg

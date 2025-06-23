@@ -1,0 +1,12 @@
+# Folder upload foto (disimpan lokal saja)
+uploads/
+
+# File konfigurasi environment
+.env
+
+# Editor/OS related
+*.log
+*.DS_Store
+.vscode/
+node_modules/
+__pycache__/

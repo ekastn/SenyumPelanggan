@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SenyumPelanggan</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>SenyumPelanggan</h1>
+    <p>Deteksi Ekspresi Kepuasan Pelanggan</p>
+    <nav>
+      <button onclick="tampilkanHalaman('deteksi')">Deteksi</button>
+      <button onclick="tampilkanHalaman('riwayat')">Riwayat</button>
+      <button onclick="tampilkanHalaman('laporan')">Laporan</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Halaman Deteksi -->
+    <section id="deteksi-section" style="display: none;">
+      <video id="kamera" autoplay muted style="width:320px;height:240px;border-radius:8px;background:#222;"></video>
+      <canvas id="snapshot-canvas" width="320" height="240" style="display:none;"></canvas>
+      <div>
+        <button onclick="jalankanDeteksi()">Deteksi Ekspresi</button>
+        <section id="hasil-section">
+          <h2>Hasil Deteksi</h2>
+          <p id="ekspresi">Belum ada hasil</p>
+          <p id="skor">-</p>
+        </section>
+      </div>
+    </section>
+
+    <!-- Halaman Riwayat -->
+    <section id="riwayat-section" style="display:none;">
+      <h2>Riwayat Deteksi</h2>
+      <table id="riwayat-table" border="1" style="width:100%;text-align:center;">
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Ekspresi</th>
+            <th>Presentase</th>
+            <th>Waktu (detik)</th>
+            <th>Ekspresi Dominan</th>
+            <th>Foto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Data riwayat akan diisi via JS -->
+        </tbody>
+      </table>
+
+      <!-- ✅ Tambahan Pagination -->
+      <div id="pagination" style="margin-top: 16px;">
+        <button onclick="gantiHalaman(-1)">« Sebelumnya</button>
+        <span id="nomor-halaman" style="margin: 0 12px;">Halaman 1</span>
+        <button onclick="gantiHalaman(1)">Berikutnya »</button>
+      </div>
+    </section>
+
+    <!-- Halaman Laporan -->
+    <section id="laporan-section" style="display:none;">
+      <h2>Laporan</h2>
+      <label>Filter:
+        <select id="filter-laporan">
+          <option value="harian">Harian</option>
+          <option value="mingguan">Mingguan</option>
+          <option value="bulanan">Bulanan</option>
+          <option value="tahunan">Tahunan</option>
+          <option value="rentang">Rentang Bulan</option>
+        </select>
+      </label>
+
+      <span id="rentang-bulan-filter" style="display:none;">
+        Dari: <input type="month" id="bulan-dari">
+        Sampai: <input type="month" id="bulan-sampai">
+      </span>
+
+      <button onclick="exportToExcel()">Export ke Excel</button>
+
+      <table id="laporan-table" border="1" style="width:100%;text-align:center;margin-top:10px;">
+        <thead>
+          <tr>
+            <th>Periode</th>
+            <th>Jumlah Deteksi</th>
+            <th>Rata-rata Skor</th>
+            <th>Ekspresi Terbanyak</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Data laporan akan diisi via JS -->
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <footer>
+    <small>&copy; 2025 - SenyumPelanggan</small>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
