@@ -61,7 +61,7 @@ async function jalankanDeteksi() {
     await new Promise((res) => setTimeout(res, interval));
   }
 
-  fetch(`${backendApiUrl}/api/deteksi`, {
+  fetch(`${backendApiUrl}/deteksi`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ frames: frames, interval: 0.5 }),
@@ -75,7 +75,7 @@ async function jalankanDeteksi() {
 }
 
 function loadRiwayat() {
-  fetch(`${backendApiUrl}/api/riwayat`)
+  fetch(`${backendApiUrl}/riwayat`)
     .then((res) => res.json())
     .then((data) => {
       dataRiwayat = data.reverse();
@@ -136,7 +136,7 @@ function loadLaporan() {
   const tbody = document.querySelector("#laporan-table tbody");
   tbody.innerHTML = "";
 
-  let url = `${backendApiUrl}/api/riwayat`;
+  let url = `${backendApiUrl}/riwayat`;
   const today = new Date().toISOString().slice(0, 10);
   const bulan = today.slice(0, 7);
 
@@ -179,7 +179,7 @@ function loadLaporan() {
 
 function exportToExcel() {
   const filter = document.getElementById("filter-laporan").value;
-  const baseUrl = `${backendApiUrl}/api/laporan/export`;
+  const baseUrl = `${backendApiUrl}/laporan/export`;
 
   const today = new Date().toISOString().slice(0, 10);
   const thisMonth = today.slice(0, 7);
