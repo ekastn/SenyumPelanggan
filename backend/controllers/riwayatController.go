@@ -240,8 +240,7 @@ func JalankanDeteksi(c *gin.Context) {
 	}
 
 	// Kirim JSON payload ke Python via stdin
-	cmd := exec.Command("python", "deteksi_batch.py")
-	cmd.Dir = "../emotion-core"
+	cmd := exec.Command("python", "/app/emotion-core/deteksi_batch.py")
 
 	stdin, _ := cmd.StdinPipe()
 	stdout, _ := cmd.StdoutPipe()

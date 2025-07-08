@@ -1,0 +1,12 @@
+{
+  "name": "senyum_pelanggan_ui",
+  "version": "1.0.0",
+  "description": "Frontend for Senyum Pelanggan",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

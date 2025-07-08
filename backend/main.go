@@ -16,8 +16,8 @@ func main() {
 	r := gin.Default()
 	r.Use(middleware.SetupCORS())
 
-	// Static file route harus di atas Run
-	r.Static("/uploads", "./uploads") // akses foto
+	// Static file routes
+	r.Static("/uploads", "./uploads")
 
 	// Routing
 	routes.SetupRoutes(r)

@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    environment:
+      - MONGOSTRING=mongodb://mongo:27017
+    depends_on:
+      - mongo
+
+  frontend:
+    build: ./senyum_pelanggan_ui
+    # environment:
+    #   - BACKEND_API_URL=http://localhost:8041
+    depends_on:
+      - backend
+
+  mongo:
+    image: mongo:latest

@@ -1,8 +1,11 @@
+import os
 import cv2
 import time
 from deepface import DeepFace
 from utils.emotion_timer import EmotionTimer
 import requests
+
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8080")
 
 # Inisialisasi
 frames = []
@@ -62,7 +65,7 @@ print(f"Dominan             : {emosi_dominan}")
 print(f"Gambar disimpan ke  : {path_foto}")
 
 # Kirim ke backend
-res = requests.post("http://localhost:8080/riwayat", files={
+res = requests.post(f"{BACKEND_URL}/riwayat", files={
     "foto": open(path_foto, "rb")
 }, data={
     "durasi_deteksi": total,
