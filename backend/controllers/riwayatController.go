@@ -11,8 +11,8 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
+	"encoding/base64"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -239,43 +239,48 @@ func JalankanDeteksi(c *gin.Context) {
 		return
 	}
 
-	// Kirim JSON payload ke Python via stdin
-	cmd := exec.Command("python", "deteksi_batch.py")
-	cmd.Dir = "../emotion-core"
-
-	stdin, _ := cmd.StdinPipe()
-	stdout, _ := cmd.StdoutPipe()
-
-	if err := cmd.Start(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal menjalankan Python"})
+	// Kirim JSON payload ke emotion-api service
+	jsonPayload, err := json.Marshal(payload)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membuat payload JSON"})
 		return
 	}
 
-	go func() {
-		defer stdin.Close()
-		input, _ := json.Marshal(payload)
-		stdin.Write(input)
-	}()
+	resp, err := http.Post("http://emotion-api:5000/detect", "application/json", bytes.NewBuffer(jsonPayload))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal konek ke emotion-api: " + err.Error()})
+		return
+	}
+	defer resp.Body.Close()
 
-	output, _ := io.ReadAll(stdout)
-	cmd.Wait()
+	resBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membaca hasil dari emotion-api"})
+		return
+	}
 
-	// Parse output dari Python
 	var result map[string]interface{}
-	if err := json.Unmarshal(output, &result); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membaca hasil dari Python"})
+	if err := json.Unmarshal(resBody, &result); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal parse hasil dari emotion-api"})
+		return
+	}
+
+	// Simpan foto dari base64
+	base64Photo := result["foto_base64"].(string)
+	decodedPhoto, err := base64.StdEncoding.DecodeString(base64Photo)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal decode foto base64"})
+		return
+	}
+
+	os.MkdirAll("uploads", os.ModePerm)
+	filename := fmt.Sprintf("uploads/%d_snapshot.jpg", time.Now().Unix())
+	if err := os.WriteFile(filename, decodedPhoto, 0644); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal menyimpan foto"})
 		return
 	}
 
 	// Kirim hasil ke endpoint POST /riwayat
-	pathFoto := result["path_foto"].(string)
-	file, err := os.Open("../emotion-core/" + pathFoto)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membuka foto"})
-		return
-	}
-	defer file.Close()
-
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 	writer.WriteField("durasi_deteksi", fmt.Sprint(result["durasi_deteksi"]))
@@ -287,17 +292,25 @@ func JalankanDeteksi(c *gin.Context) {
 	writer.WriteField("presentase_tidak_bahagia", fmt.Sprint(result["presentase_tidak_bahagia"]))
 	writer.WriteField("emosi_dominan", fmt.Sprint(result["emosi_dominan"]))
 
-	part, _ := writer.CreateFormFile("foto", filepath.Base(pathFoto))
+	// Add the saved file to the multipart form
+	file, err := os.Open(filename)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membuka foto yang disimpan"})
+		return
+	}
+	defer file.Close()
+
+	part, _ := writer.CreateFormFile("foto", filepath.Base(filename))
 	io.Copy(part, file)
 	writer.Close()
 
-	resp, err := http.Post("http://localhost:8080/riwayat", writer.FormDataContentType(), body)
+	resp, err = http.Post("http://localhost:8080/riwayat", writer.FormDataContentType(), body)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal kirim ke riwayat"})
 		return
 	}
 	defer resp.Body.Close()
-	resBody, _ := io.ReadAll(resp.Body)
+	resBody, _ = io.ReadAll(resp.Body)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Deteksi selesai dan data disimpan",

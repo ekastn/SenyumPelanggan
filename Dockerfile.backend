@@ -1,0 +1,31 @@
+# Dockerfile.backend
+FROM golang:1.23-alpine AS builder
+
+WORKDIR /app
+
+COPY backend/go.mod backend/go.sum ./backend/
+
+WORKDIR /app/backend
+
+RUN go mod download
+
+WORKDIR /app
+
+COPY backend/ ./backend/
+
+WORKDIR /app/backend
+
+RUN go build -o /app/backend-app .
+
+FROM alpine:latest
+
+WORKDIR /app
+
+COPY --from=builder /app/backend-app .
+
+# Create a directory for uploads
+RUN mkdir -p uploads
+
+EXPOSE 8080
+
+CMD ["./backend-app"]

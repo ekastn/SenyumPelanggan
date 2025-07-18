@@ -1,0 +1,25 @@
+# Dockerfile.emotion
+FROM python:3.9-slim-buster
+
+WORKDIR /app
+
+# Point to archived Debian repositories for older releases
+RUN sed -i -e 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list     && sed -i -e 's/security.debian.org/archive.debian.org/g' /etc/apt/sources.list
+
+# Install libgl1-mesa-glx for OpenCV dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	libgl1-mesa-glx \
+	libglib2.0-0 \
+	&& rm -rf /var/lib/apt/lists/*
+
+COPY emotion-core/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY emotion-core/ .
+
+# Create a directory for snapshots
+RUN mkdir -p snapshots
+
+EXPOSE 5000
+
+CMD ["python", "app.py"]

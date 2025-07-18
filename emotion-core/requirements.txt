@@ -2,3 +2,5 @@ deepface
 opencv-python
 numpy
 requests
+flask
+tf-keras

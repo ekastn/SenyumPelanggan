@@ -49,7 +49,7 @@ async function jalankanDeteksi() {
     await new Promise((res) => setTimeout(res, interval));
   }
 
-  fetch("http://localhost:8080/deteksi", {
+  fetch("/api/deteksi", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ frames: frames, interval: 0.5 }),
@@ -63,7 +63,7 @@ async function jalankanDeteksi() {
 }
 
 function loadRiwayat() {
-  fetch("http://localhost:8080/riwayat")
+  fetch("/api/riwayat")
     .then((res) => res.json())
     .then((data) => {
       dataRiwayat = data.reverse();
@@ -89,7 +89,7 @@ function renderRiwayat() {
       <td>${item.presentase.netral}%</td>
       <td>${parseFloat(item.durasi_netral).toFixed(2)} detik</td>
       <td rowspan="3">${item.emosi_dominan}</td>
-      <td rowspan="3"><img src="http://localhost:8080${item.path_foto}" width="80" /></td>
+      <td rowspan="3"><img src="/api${item.path_foto}" width="80" /></td>
     `;
     const tr2 = document.createElement("tr");
     tr2.innerHTML = `
@@ -124,7 +124,7 @@ function loadLaporan() {
   const tbody = document.querySelector("#laporan-table tbody");
   tbody.innerHTML = "";
 
-  let url = "http://localhost:8080/riwayat";
+  let url = "/api/riwayat";
   const today = new Date().toISOString().slice(0, 10);
   const bulan = today.slice(0, 7);
 
@@ -167,7 +167,7 @@ function loadLaporan() {
 
 function exportToExcel() {
   const filter = document.getElementById("filter-laporan").value;
-  const baseUrl = "http://localhost:8080/laporan/export";
+  const baseUrl = "/api/laporan/export";
 
   const today = new Date().toISOString().slice(0, 10);
   const thisMonth = today.slice(0, 7);

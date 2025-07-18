@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    environment:
+      MONGOSTRING: mongodb://database:27017
+    depends_on:
+      - database
+      - emotion-api
+    volumes:
+      - backend_uploads:/app/uploads
+
+  emotion-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.emotion
+    volumes:
+      - emotion_snapshots:/app/snapshots
+
+  database:
+    image: mongo:latest
+
+volumes:
+  backend_uploads:
+  emotion_snapshots:
+  mongo_data:
